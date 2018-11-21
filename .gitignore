@@ -11,3 +11,11 @@ node_modules
 logs
 *.log
 npm-debug.log*
+
+# IDEA files
+.idea/encodings.xml
+.idea/greetings-web3-1.0.iml
+.idea/misc.xml
+.idea/modules.xml
+.idea/vcs.xml
+.idea/workspace.xml
