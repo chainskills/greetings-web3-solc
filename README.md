@@ -32,17 +32,17 @@ $ npm install
 ```
 
 The project is pre-configured to install:
-* web3.js 1.0:
+* web3.js (version 1.0 beta 36):
   * the wrapper to the Ethereum blockchain
     
-* solc:
+* solc (version 0.4.25):
   * the solidity compiler 
 
 ## Step 3. Start your Ethereum node
 
 Start Ganache and get the RPC server that could be: http://127.0.0.1:7545
 
-The first account will be the **coinbase**, the default account used to deploy your contracts.
+The first account will be the default account used to deploy your contracts.
 
 ## Step 4. Configure your project
 
@@ -52,27 +52,83 @@ Open the file `deploy.js` and ensure that the RPC server matches the one defined
 const web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:7545"));
 ```
 
-## Step 6. Build and deploy your contract
+## Step 5. Build and deploy your contract
 
 To deploy the contract, we will use Node.js to run the `deploy.js` script.
 
-This script will first compile your contract through the `compile.js` script before deploying its bytecode to Ganache.
-
+This script will first compile your contract using the `compile.js` script before deploying the bytecode to Ganache.
 
 ```
 $ node deploy
+contract address:  0xd8715266789bA8e3e168a89DbD8be1ab6975f085
 ```
 
-The contract address will be deployed in the console.
+The contract address will be displayed in the console.
+
+Open Transactions view on Ganache. You should find a transaction identified as `CONTRACT CREATION`.
+
+Check this transaction to read its properties (block number, gas limit, gas used, gas price, etc.).
 
 
-## Step 6. Compile and deploy your smart contract
+## Step 6. Interact with the contract
+
+### Step 6-1. Open a Node console:
 
 ```
-$ truffle migrate --reset
+$ node
+>
 ```
 
-You will have to migrate (deploy) your smart contract each time your restart **testrpc**.
+### Step 6-2. Configure the wrapper to the Ethereum:
+
+```
+> Web3 = require('web3')
+> web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:7545")) 
+```
+
+### Step 6-3: Retrieve accounts
+
+```
+> web3.eth.getAccounts().then(function(_accounts) {accounts = _accounts})
+
+> accounts
+```
+
+The variable `accounts` displays an array with all accounts defined in Ganache.
+
+
+### Step 6-4: Retrieve the ABI (Application Binary Interface)
+
+The ABI described the functions exposed by the smart contract. 
+
+We will to retrieve the ABI from the JSON file generated in the build folder during the compile process.
+
+First, we read and parse the JSON file:
+```
+> contractPath = path.resolve("./Build/Greetings.json")
+> contractFile = fs.readFileSync(contractPath, "utf8")
+> contractJSON = JSON.parse(contractFile)
+```
+
+We retrieve the ABI part located in the interface part:
+
+```
+> abi = JSON.parse(contractJSON.interface)
+```
+
+### Step 6-5: Get an instance to the contract
+
+We are ready to get an instance to the smart contract.
+
+Use the contract address displayed to you during the deploy process:
+
+```
+> instance = new web3.eth.Contract(abi, "0xd8715266789bA8e3e168a89DbD8be1ab6975f085")
+```
+
+## Step 7: Interact with the smart contract
+
+
 
 ## Step 7. Metamask: connect to your local Ethereum node
 
