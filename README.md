@@ -165,7 +165,7 @@ The call displays the transaction hash.
 
 You can switch to Ganache to inspect the transaction of type `CONTRACT CALL`. Some information is visible such as the gas used and the data in hexadecimal sent to the contract.
 
-The web site `Code  beautify (https://codebeautify.org/hex-string-converter) allows to convert the hexadecimal to a string.
+The web site `Code beautify` (https://codebeautify.org/hex-string-converter) allows to convert the hexadecimal to a string.
 
 ## Step 9: Read the state variable
 
