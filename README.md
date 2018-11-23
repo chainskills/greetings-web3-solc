@@ -31,7 +31,7 @@ $ cd greetings-web3-1.0
 $ npm install
 ```
 
-The project is pre-configured to install:
+The project is preconfigured to install:
 * web3.js (version 1.0 beta 36):
   * the wrapper to the Ethereum blockchain
     
@@ -58,6 +58,8 @@ To deploy the contract, we will use Node.js to run the `deploy.js` script.
 
 This script will first compile your contract using the `compile.js` script before deploying the bytecode to Ganache.
 
+### Step 5-1. Deploy the contract
+
 ```
 $ node deploy
 contract address:  0xd8715266789bA8e3e168a89DbD8be1ab6975f085
@@ -69,6 +71,14 @@ Open Transactions view on Ganache. You should find a transaction identified as `
 
 Check this transaction to read its properties (block number, gas limit, gas used, gas price, etc.).
 
+### Step 5-2. Inspect the JSON file
+
+Open the JSON file generated during the build process. The file is located under the `build` folder.
+
+At the end of the file, you will find the following entries:
+* **interface**: this is the ABI (Application Binary Interface) describing the functions exposed by the contract. The ABI will be required later.
+* **runtimeBytecode**: the bytecode version of the compiled contract.
+* **opcodes**: the resulting assembly code that will be executed by the EVM.
 
 ## Step 6. Interact with the contract
 
@@ -94,14 +104,14 @@ $ node
 > accounts
 ```
 
-The variable `accounts` displays an array with all accounts defined in Ganache.
+The variable `accounts` displays an array of all accounts defined in Ganache.
 
 
 ### Step 6-4: Retrieve the ABI (Application Binary Interface)
 
 The ABI described the functions exposed by the smart contract. 
 
-We will to retrieve the ABI from the JSON file generated in the build folder during the compile process.
+We will retrieve the ABI from the JSON file generated in the build folder during the compile process.
 
 First, we read and parse the JSON file:
 ```
@@ -126,131 +136,53 @@ Use the contract address displayed to you during the deploy process:
 > instance = new web3.eth.Contract(abi, "0xd8715266789bA8e3e168a89DbD8be1ab6975f085")
 ```
 
-## Step 7: Interact with the smart contract
+## Step 7: Read the state variable
 
-
-
-## Step 7. Metamask: connect to your local Ethereum node
-
-Unlock the Metamask extension in Chrome, and switch it to the network "Localhost 8545".
-
-## Step 8. Metamask: import your accounts
-
-Import accounts defined in your testrpc Ethereum node.
-
-If you used `starttestrpc.sh`, here are the 3 private keys defined in the script:
-* 0x351494a5ae8f9b70a2a2fd482146ab4578f61d4d796685c597ec6683635a940e
-* 0x4cd491f96e6623edb52719a8d4d1110a87d8d83e3fa86f8e14007cb3831c0a2b
-* 0xef40e0d6ada046010b6965d73603cabae1a119ca804f5d9e9a9ce866b0bea7d
-
-In Metamask, rename these accounts respectively:
-* testrpc-coinbase
-* testrpc-account1
-* testrpc-account2
-
-## Step 9. Run your frontend application
+We can call the getGreetings public function to retrieve the state variable with the value initialised in the constructor:
 
 ```
-$ npm run dev
+> instance.methods.getGreetings().call().then(console.log)
+I am ready!
 ```
 
-In your browser, open the following URL: http://localhost:3000
+If you check the Transactions view in Ganache, you will notice that no new transactions have been created. This is because the `getGreetings` function is a `view` function that doesn't alter the state of the contract.
+Calling this type of function is free!
 
-## Step 10. Metamask: switch to the `testrpc-account1` account
+## Step 8: Change the message
 
-When you switch accounts or networks in Metamask, you have to refresh your  page to let your frontend application know about it.
+We call the setGreetings public function to change the state variable stored within the contract.
 
-## Step 11. Publish resumes
+This call will create a transaction with a gas fee to pay by the sender.
 
-You can publish your resume.
-
-Metamask will ask you to confirm the transaction before publishing your resume.
-
-## Step 12. Interact with the smart contract:
-
-From your console window in Terminal, you can use the Truffle console to inspect the status of your contract.
-
-Here is a short example:
-
-### Open the console:
 ```
-$ truffle console
-truffle(development)>
+> instance.methods.setGreetings("Hello ChainSkills!").send({from: accounts[0]}).on('transactionHash', function(hash){console.log(hash)})
+0xd21c2e807be7d3f077dd7aa0a6a30d2646f33d77c82f2030f5b2cf0c4acc64e7
 ```
 
-### Get an instance of the smart contract:
-```
-truffle(development)> Resumeum.deployed().then(function(instance) {app = instance; })
-```
-From now on, you can use the `app` variable to interact with your smart contract.
+The call sends the new message `Hello ChainSkills!` to the contract. The first account will pay the transaction fee.
 
-### List your accounts:
-```
-truffle(development)> web3.eth.accounts
-[ '0x00d1ae0a6fc13b9ecdefa118b94cf95ac16d4ab0',   '0x1daa654cfbc28f375e0f08f329de219fff50c765',   '0xc2dbc0a6b68d6148d80273ce4d6667477dbf2aa7' ]
-```
+The call displays the transaction hash.
 
-### Get the price of the service:
-```
-truffle(development)> app.getPrice.call()
-{ [String: '40000000000000000'] s: 1, e: 16, c: [ 400 ] }
-```
+You can switch to Ganache to inspect the transaction of type `CONTRACT CALL`. Some information is visible such as the gas used and the data in hexadecimal sent to the contract.
 
-### Change the price of the service (as the contract's owner):
+The web site `Code  beautify (https://codebeautify.org/hex-string-converter) allows to convert the hexadecimal to a string.
+
+## Step 9: Read the state variable
+
+We can call the getGreetings function to retrieve the state variable to check if the variable has been properly modified:
+
 ```
-truffle(development)> app.setPrice(40000000000000000, {from: web3.eth.accounts[0]})
+> instance.methods.getGreetings().call().then(console.log)
+Hello ChainSkills!
 ```
 
-### Get the balance of your smart contract:
-```
-truffle(development)> web3.fromWei(web3.eth.getBalance(Resumeum.address), "ether").toNumber()
-```
+Great, it works!
 
-### Get the balance of the account 1:
-```
-truffle(development)> web3.fromWei(web3.eth.getBalance(web3.eth.accounts[1]), "ether").toNumber()
-```
+You can exit the Node console:
 
-### Watch for events:
 ```
-truffle(development)> var resumeEvent = app.publishResumeEvent({}, {fromBlock: 0,toBlock: 'latest'}).watch(function(error, event) {console.log(event);})
-```
-
-### Get the list of resumes:
-```
-truffle(development)> app.getResume.call()
-[ '0x1daa654cfbc28f375e0f08f329de219fff50c765',   'John',   'Doe',   'I’m an Ethereum developer',   'In the past year, I have created a lot of Ethereum smart contracts. My personal projects are available on Github',   'Belgium',   'https://cdn.pixabay.com/photo/2013/07/13/10/07/man-156584_960_720.png' ]
-```
-
-#
-### Publish resumes (as accounts 1 and 2):
-```
-truffle(development)> app.publishResume("John", "Doe", "I’m an Ethereum developer", "In the past year, I have created a lot of Ethereum smart contracts. My personal projects are available on Github", "Belgium", "https://cdn.pixabay.com/photo/2013/07/13/10/07/man-156584_960_720.png", {from: web3.eth.accounts[1], value: web3.toWei(0.02, "ether")} )
-
-truffle(development)> app.publishResume("Jane", "Smith", "I'm an blockchain developer", "This is my summary", "United States", "http://i.pravatar.cc/300", {from: web3.eth.accounts[2], value: web3.toWei(0.02, "ether")})
-```
-
-### Get the addresses of the consultants that have published a resume:
-```
-truffle(development)> app.getConsultants()
-[ '0x1daa654cfbc28f375e0f08f329de219fff50c765',   '0xc2dbc0a6b68d6148d80273ce4d6667477dbf2aa7' ]
-```
-
-### Get the detail of a resume owned by a consultant:
-```
-truffle(development)> app.resumes('0x1daa654cfbc28f375e0f08f329de219fff50c765') [ '0x1daa654cfbc28f375e0f08f329de219fff50c765',   'John',   'Doe',   'I\'m a developer',   'This is my summary',   'Belgium',   'http://i.pravatar.cc/300' ]
-```
-
-### Deactivate you smart contract:
-Only required if you want to "kill" your smart contract:
-```
-truffle(development)> app.kill({from: web3.eth.accounts[0]})
-```
-
-## Tips
-
-* Is Metamask slow ? try to disable and enable the extension. This happens sometimes, especially when we work with a private chain.
-* When you switch accounts in Metamask, don't forget to refresh the page to make sure you get the current account set in Metamask.
+> .exit
+``` 
 
 ## Learn more
 
@@ -258,4 +190,4 @@ If you want to know more about all the steps required to install, build and  dep
 
 Have fun !!!
 
-ChainSkills Team - 2017
+ChainSkills Team - 2018
