@@ -27,7 +27,7 @@ The project contains the following files and folders:
 ## Step 2. Install all dependencies
 
 ```
-$ cd greetings-web3-1.0
+$ cd greetings-web3-solc
 $ npm install
 ```
 
@@ -35,7 +35,7 @@ The project is preconfigured to install:
 * web3.js (version 1.0 beta 36):
   * the wrapper to the Ethereum blockchain
     
-* solc (version 0.4.25):
+* solc (version 0.5.1):
   * the solidity compiler 
 
 ## Step 3. Start your Ethereum node
@@ -117,13 +117,13 @@ First, we read and parse the JSON file:
 ```
 > contractPath = path.resolve("./Build/Greetings.json")
 > contractFile = fs.readFileSync(contractPath, "utf8")
-> contractJSON = JSON.parse(contractFile)
+> contract = JSON.parse(contractFile)
 ```
 
-We retrieve the ABI part located in the interface part:
+The interface is contained into the abi part of the contract:
 
 ```
-> abi = JSON.parse(contractJSON.interface)
+> contract.abi
 ```
 
 ### Step 6-5: Get an instance to the contract
@@ -133,7 +133,7 @@ We are ready to get an instance to the smart contract.
 Use the contract address displayed to you during the deploy process:
 
 ```
-> instance = new web3.eth.Contract(abi, "0xd8715266789bA8e3e168a89DbD8be1ab6975f085")
+> instance = new web3.eth.Contract(contract.abi, "0xd8715266789bA8e3e168a89DbD8be1ab6975f085")
 ```
 
 ## Step 7: Read the state variable
